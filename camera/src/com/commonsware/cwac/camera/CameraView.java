@@ -99,33 +99,32 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
   public void onResume() {
     addView(previewStrategy.getWidget());
 
-    if (camera == null) {
-      cameraId=getHost().getCameraId();
+    try {
+      if (camera == null) {
+        cameraId = getHost().getCameraId();
 
-      if (cameraId >= 0) {
-        try {
-          camera=Camera.open(cameraId);
+        if (cameraId >= 0) {
+          camera = Camera.open(cameraId);
 
-          if (getActivity().getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+          if (getActivity().getRequestedOrientation() !=
+              ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
             onOrientationChange.enable();
           }
 
           setCameraDisplayOrientation();
 
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-              && getHost() instanceof Camera.FaceDetectionListener) {
-            camera.setFaceDetectionListener((Camera.FaceDetectionListener)getHost());
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH &&
+              getHost() instanceof Camera.FaceDetectionListener) {
+            camera.setFaceDetectionListener((Camera.FaceDetectionListener) getHost());
           }
-        }
-        catch (Exception e) {
-          getHost().onCameraFail(FailureReason.UNKNOWN);
+        } else {
+          getHost().onCameraFail(FailureReason.NO_CAMERAS_REPORTED);
         }
       }
-      else {
-        getHost().onCameraFail(FailureReason.NO_CAMERAS_REPORTED);
-      }
+    } catch (Exception e) {
+      getHost().onCameraFail(FailureReason.UNKNOWN);
     }
-  }
+}
 
   public void onPause() {
     if (camera != null) {
